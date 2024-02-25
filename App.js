@@ -1,5 +1,5 @@
-import { StatusBar } from 'expo-status-bar';
-import { Text, View } from 'react-native';
+// import { StatusBar } from 'expo-status-bar';
+import { Text, View, StatusBar } from 'react-native';
 import LoginPage from './pages/LoginPage';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -8,9 +8,10 @@ export default function App() {
     <View className="flex-1 flex justify-center items-center">
     <LinearGradient
     className="flex-1 flex justify-center items-center w-full"
-      colors={[ '#00E5FF','#4285F4']}>
+      colors={[ '#04d4f4','#086cf4']}>
         <LoginPage/>
     </LinearGradient>
+    <StatusBar style='auto' />
     </View>
   );
 }
