@@ -30,27 +30,28 @@ export default function LoginPage () {
         }
     }
     
-    //handling login
+    //handling api call for loginPasahero
     const _handleLogin = async () => {
         if(!username.length || !password.length){
-            return fieldChecker()
+            fieldChecker()
+        }else{
+            setIsLoading(true)
+            const {isError, isLoggedIn, message} = await loginPasahero({username, password})
+            .then(data=>{
+             setIsLoading(false)
+             return data
+            })
+            if(!isLoggedIn || isError){
+             if(isError==="username"){
+                 stateSetter(setError, {username:message})
+             }else if(isError==="password"){
+                 stateSetter(setError, {password:message})
+             }
+            }
+            if(isLoggedIn){
+             console.log("Logged in")
+            }
         }
-        setIsLoading(true)
-       const {isError, isLoggedIn, message} = await loginPasahero({username, password})
-       .then(data=>{
-        setIsLoading(false)
-        return data
-       })
-       if(!isLoggedIn || isError){
-        if(isError==="username"){
-            stateSetter(setError, {username:message})
-        }else if(isError==="password"){
-            stateSetter(setError, {password:message})
-        }
-       }
-       if(isLoggedIn){
-        console.log("Logged in")
-       }
     }
 
     //handle change and remove error on change
@@ -64,12 +65,13 @@ export default function LoginPage () {
         })
     }
 
+    //toggle function for show password
     const _handleShowPassword = () => {
         setShowPassword(prev=>!showPassword)
     }
 
     return (
-    <View className="flex-1 flex justify-center items-center w-full">
+    <LinearGradient colors={[ '#04d4f4','#086cf4']} className="flex-1 flex justify-center items-center w-full">
         <View className=" w-11/12 bg-white rounded-xl p-5 py-10 flex items-center justify-center">
             <Text className=" text-4xl font-black text-sky-700">PASAHEROES</Text>
             <View className=" w-full my-3 px-4 justify-center items-center flex flex-col">
@@ -85,7 +87,6 @@ export default function LoginPage () {
                 <Text className=" flex w-full px-2 font-bold text-gray-500 pb-1 justify-between">Password</Text>
                 <View className={` flex flex-row items-center justify-between border rounded-full border-gray-300 w-full px-5 py-1 ${!error.password?"border-gray-300":"border-red-300"}`}>
                     <TextInput 
-                    // className={` border rounded-full border-gray-300 w-full px-5 py-1 ${!error.password?"border-gray-300":"border-red-300"}`}
                     className=" flex-1"
                     value={password} 
                     onChangeText={(e)=>{_handleTextChange(e, setPassword, "password")}} 
@@ -114,7 +115,7 @@ export default function LoginPage () {
                 </TouchableOpacity>
             </View>
         </View>
-    </View>
+    </LinearGradient>
     )
 } 
 
