@@ -1,9 +1,8 @@
-import { Button, KeyboardAvoidingView, Modal, Pressable, Text, TextInput, TouchableHighlight, TouchableOpacity, TouchableOpacityBase, View } from "react-native";
+import { KeyboardAvoidingView, Text, TextInput, TouchableHighlight, TouchableOpacity, View } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from "react";
 import { loginPasahero } from "../server/api/login";
 import Icon from 'react-native-vector-icons/Feather';
-import SignUpForm from "./SignUpForm";
 
 export default function LoginPage () {
     const [username, setUsername] = useState("")
@@ -72,11 +71,6 @@ export default function LoginPage () {
         setShowPassword(prev=>!showPassword)
     }
 
-    //handle open signup form
-    const _toggleSignUpModal = () => {
-        setSignUpOpen(prev=>!prev)
-    }
-
     return (
     <LinearGradient colors={[ '#04d4f4','#086cf4']} className="flex-1 flex justify-center items-center w-full">
         {/* <Modal 
@@ -126,7 +120,7 @@ export default function LoginPage () {
             </TouchableHighlight>
             <View className=" flex justify-center w-full items-center pt-2 flex-row gap-1">
                 <Text className=" text-xs">Don't have an account?</Text>
-                <TouchableOpacity onPress={()=>_toggleSignUpModal()}>
+                <TouchableOpacity onPress={()=>null}>
                     <Text className=" text-xs font-bold text-sky-500">Register</Text>
                 </TouchableOpacity>
             </View>
