@@ -1,8 +1,9 @@
-import { Button, Pressable, Text, TextInput, TouchableHighlight, TouchableOpacity, TouchableOpacityBase, View } from "react-native";
+import { Button, KeyboardAvoidingView, Modal, Pressable, Text, TextInput, TouchableHighlight, TouchableOpacity, TouchableOpacityBase, View } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from "react";
 import { loginPasahero } from "../server/api/login";
 import Icon from 'react-native-vector-icons/Feather';
+import SignUpForm from "./SignUpForm";
 
 export default function LoginPage () {
     const [username, setUsername] = useState("")
@@ -10,6 +11,7 @@ export default function LoginPage () {
     const [error, setError] = useState({username:null, password:null})
     const [loading, setIsLoading] = useState(false)
     const [showPassword, setShowPassword] = useState(true)
+    const [signUpOpen, setSignUpOpen] = useState(false)
 
     //function to set setter in useStates
     const stateSetter = (setter, value) => {
@@ -70,9 +72,23 @@ export default function LoginPage () {
         setShowPassword(prev=>!showPassword)
     }
 
+    //handle open signup form
+    const _toggleSignUpModal = () => {
+        setSignUpOpen(prev=>!prev)
+    }
+
     return (
     <LinearGradient colors={[ '#04d4f4','#086cf4']} className="flex-1 flex justify-center items-center w-full">
-        <View className=" w-11/12 bg-white rounded-xl p-5 py-10 flex items-center justify-center">
+        {/* <Modal 
+        visible={signUpOpen}
+        transparent={true}
+        animationType="slide"
+        // presentationStyle="pageSheet"
+        onRequestClose={_toggleSignUpModal}
+        > */}
+                {/* <SignUpForm/> */}
+        {/* </Modal> */}
+        <KeyboardAvoidingView className=" w-11/12 bg-white rounded-xl p-5 py-10 flex items-center justify-center">
             <Text className=" text-4xl font-black text-sky-700">PASAHEROES</Text>
             <View className=" w-full my-3 px-4 justify-center items-center flex flex-col">
                 <Text className=" flex w-full px-2 font-bold text-gray-500 pb-1">Username</Text>
@@ -110,11 +126,11 @@ export default function LoginPage () {
             </TouchableHighlight>
             <View className=" flex justify-center w-full items-center pt-2 flex-row gap-1">
                 <Text className=" text-xs">Don't have an account?</Text>
-                <TouchableOpacity onPress={()=>console.log("register")}>
+                <TouchableOpacity onPress={()=>_toggleSignUpModal()}>
                     <Text className=" text-xs font-bold text-sky-500">Register</Text>
                 </TouchableOpacity>
             </View>
-        </View>
+        </KeyboardAvoidingView>
     </LinearGradient>
     )
 } 
