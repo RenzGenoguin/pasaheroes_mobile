@@ -2,6 +2,7 @@ import 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import PublicPages from './navigations/PublicPages';
+import PrivatePages from './navigations/PrivatePages';
 import { Text, View} from 'react-native';
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -27,7 +28,7 @@ export default App = ()=> {
       <AuthContext.Provider value={{ username, setUsername }}>
         <NavigationContainer>
           {username? 
-          <PublicPages/>:
+          <PrivatePages/>:
           <PublicPages/>}
           <StatusBar style='auto' />
         </NavigationContainer>
