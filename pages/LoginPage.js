@@ -3,8 +3,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from "react";
 import { loginPasahero } from "../server/api/login";
 import Icon from 'react-native-vector-icons/Feather';
+import useAuth from "../context/AuthContext";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ALERT_TYPE,  Toast } from 'react-native-alert-notification';
 
-export default function LoginPage () {
+export default function LoginPage ({navigation}) {
+    const { setUsername: setUsernameAuth } = useAuth()
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
     const [error, setError] = useState({username:null, password:null})
@@ -30,6 +34,27 @@ export default function LoginPage () {
             stateSetter(setError, {password:"Password is required"})
         }
     }
+
+    //navigate to Signup handler
+    const _navigateToSignup = () => {
+        navigation.navigate("Signup")
+    }
+
+    const _asyncStorageSetter = async(username) => {
+         await AsyncStorage.setItem(
+            'username',
+            username,
+          ).then(()=>{
+
+        Toast.show({
+            type: ALERT_TYPE.SUCCESS,
+            title: 'Login Success',
+            textBody: 'Successfully Logged in!',
+          })
+            setUsernameAuth(username)
+          });
+          setIsLoading(false)
+    }
     
     //handling api call for loginPasahero
     const _handleLogin = async () => {
@@ -37,20 +62,20 @@ export default function LoginPage () {
             fieldChecker()
         }else{
             setIsLoading(true)
-            const {isError, isLoggedIn, message} = await loginPasahero({username, password})
+            const {isError, isLoggedIn, message, username} = await loginPasahero({username, password})
             .then(data=>{
-             setIsLoading(false)
              return data
             })
             if(!isLoggedIn || isError){
-             if(isError==="username"){
+             if(isError && isError==="username"){
                  stateSetter(setError, {username:message})
              }else if(isError==="password"){
                  stateSetter(setError, {password:message})
              }
+             setIsLoading(false)
             }
-            if(isLoggedIn){
-             console.log("Logged in")
+            if(isLoggedIn && username){
+                _asyncStorageSetter(username)
             }
         }
     }
@@ -120,7 +145,7 @@ export default function LoginPage () {
             </TouchableHighlight>
             <View className=" flex justify-center w-full items-center pt-2 flex-row gap-1">
                 <Text className=" text-xs">Don't have an account?</Text>
-                <TouchableOpacity onPress={()=>null}>
+                <TouchableOpacity onPress={_navigateToSignup}>
                     <Text className=" text-xs font-bold text-sky-500">Register</Text>
                 </TouchableOpacity>
             </View>

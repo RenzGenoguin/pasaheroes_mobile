@@ -1,15 +1,38 @@
-// import { StatusBar } from 'expo-status-bar';
-import {  View, StatusBar } from 'react-native';
-import LoginPage from './pages/LoginPage';
-import SignUpForm from './pages/SignUpForm';
+import 'react-native-gesture-handler';
+import { StatusBar } from 'expo-status-bar';
+import { NavigationContainer } from '@react-navigation/native';
+import PublicPages from './navigations/PublicPages';
+import { Text, View} from 'react-native';
+import { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AuthContext } from './context/AuthContext';
+import {  AlertNotificationRoot } from 'react-native-alert-notification';
 
-export default function App() {
+
+
+export default App = ()=> {
+  const [username, setUsername] = useState(null)
+
+  const _isLoggedIn = async() => {
+  const data =  await AsyncStorage.getItem('username')
+  return data
+  }
+
+  useEffect(()=>{
+    _isLoggedIn().then(data=>setUsername(data))
+  },[])
+
   return (
-    <View className="flex-1 flex justify-center items-center bg-white">
-      <LoginPage/>
-
-      {/* <SignUpForm/> */}
-      <StatusBar style='auto' />
-    </View>
+    <AlertNotificationRoot>
+      <AuthContext.Provider value={{ username, setUsername }}>
+        <NavigationContainer>
+          {username? 
+          <PublicPages/>:
+          <PublicPages/>}
+          <StatusBar style='auto' />
+        </NavigationContainer>
+      </AuthContext.Provider>
+    </AlertNotificationRoot>
   );
+
 }

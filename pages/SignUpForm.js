@@ -1,13 +1,17 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
-import { Alert,  ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {  ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Dropdown } from 'react-native-element-dropdown';
 import Icon from 'react-native-vector-icons/Feather';
 import { signupPasahero } from "../server/api/signup";
+import useAuth from "../context/AuthContext";
+import { ALERT_TYPE,  Dialog, Toast } from 'react-native-alert-notification';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const defaultData = {
     username :"",
     password :"",
+    confirmPassword:"",
     firstName :"",
     lastName :"",
     profileUrl :"",
@@ -22,10 +26,12 @@ const data = [
     {label:'Male', value:'Male'},
     {label:'Female', value:'Female'},
 ]
-const SignUpForm = () => {  
+const SignUpForm = ({navigation}) => {  
+    const { setUsername: setUsernameAuth } = useAuth()
     const [formFields, setFormFields] = useState(defaultData);
     const [formFieldError, setFormFieldError] = useState(defaultData);
     const [showPassword, setShowPassword] = useState(true)
+    const [loading, setIsLoading] = useState(false)
 
     //setter for formFieldState
     const _formFieldSetter =(field, data)=>{
@@ -35,12 +41,12 @@ const SignUpForm = () => {
                 [field]:data
             }
         })
-        setFormFieldError(prev=>{
-            return {
-                ...prev,
-                [field]:""
-            }
-        })
+        setFormFieldError(defaultData)
+    }
+
+    //navigate to Login handler
+    const _navigateToLogin = () => {
+        navigation.navigate("Login")
     }
 
     //toggle function for show password
@@ -57,6 +63,13 @@ const SignUpForm = () => {
                     [field]:message
                 }
             })
+            // Alert.alert("Required", message)
+            
+        Toast.show({
+            type: ALERT_TYPE.DANGER,
+            textBody: message,
+            // textBody: 'Successfully Logged in!',
+          })
             return true
         }else {
             return false
@@ -79,13 +92,46 @@ const SignUpForm = () => {
             return true
         }else if(_fieldErrorChecker("password", "Password is required")){
             return true
-        }else {
+        }else if(formFields.password !== formFields.confirmPassword){
+
+            //confirm password checker
+            setFormFieldError(prev=>{
+                return {
+                    ...prev,
+                    password:"Password does not match",
+                    confirmPassword:"Password does not match",
+                }
+            })
+        Toast.show({
+            type: ALERT_TYPE.DANGER,
+            title: "Password does not match",
+            textBody: "Retry confirming password",
+          })
+            return true
+        } else {
             return false
         }
     }
 
+    const _asyncStorageSetter = async(username) => {
+        await AsyncStorage.setItem(
+           'username',
+           username,
+         ).then(()=>{
+
+        Dialog.show({
+           type: ALERT_TYPE.SUCCESS,
+           title: 'Welcome',
+           textBody: 'You have successfully signed in!',
+         })
+           setUsernameAuth(username)
+         });
+         setIsLoading(false)
+   }
+
     //handle submit signup
     const _handleSubmitSignup = async () => {
+        setIsLoading(true)
         if(_checkError()){
             console.log("error")
         }else{
@@ -95,7 +141,9 @@ const SignUpForm = () => {
                 isLoggedIn,
                 data,
                 errorField,
-              } = await signupPasahero({...formFields})
+              } = await signupPasahero({...formFields}).finally(()=>{
+                setIsLoading(false)
+              })
             if(isError && !data){
                 if(errorField === "username"){
                     setFormFieldError(prev=>{
@@ -104,12 +152,17 @@ const SignUpForm = () => {
                             [errorField]:message
                         }
                     })
-                    Alert.alert(message, "Please use another username")
+
+                Dialog.show({
+                    type: ALERT_TYPE.DANGER,
+                    title: message,
+                    textBody: "Please use another username",
+                })
                 } else {
 
                 }
-            }else {
-
+            }else if(data){
+                _asyncStorageSetter(data.username)
             }
         }
     }
@@ -221,8 +274,27 @@ const SignUpForm = () => {
                     </View>
                 </View>
             </View>
+
+            <View className=" flex flex-row gap-1 mb-3">
+                <View className=" flex flex-col flex-1">
+                    <Text className=" flex w-full px-1 text-sky-700 text-xs mb-1">Confirm Password</Text>
+                    <View className={ ` flex flex-row justify-between items-center border rounded-md  w-full px-3 py-1 ${!formFieldError.confirmPassword.length?"border-gray-400":"border-red-300"}`}>
+                            <TextInput 
+                            className=" flex-1"
+                            value={formFields.confirmPassword} 
+                            onChangeText={(e)=>{_formFieldSetter("confirmPassword", e)}} 
+                            placeholder="Confirm your password" 
+                            secureTextEntry={showPassword}
+                            />
+                            <TouchableOpacity onPress={_handleShowPassword}>
+                                <Icon name={showPassword?"eye":"eye-off"} size={16}/>
+                            </TouchableOpacity>
+                    </View>
+                </View>
+            </View>
+
             <View className={" flex flex-row items-center justify-center w-full mt-2 px-3"}>
-                <TouchableOpacity className={" flex-1 bg-white border border-gray-300 flex items-center justify-center py-2 rounded-md"}>
+                <TouchableOpacity onPress={_navigateToLogin} className={" flex-1 bg-white border border-gray-300 flex items-center justify-center py-2 rounded-md"}>
                     <Text className={" text-gray-600"}>Cancel</Text>
                 </TouchableOpacity>
 
@@ -236,7 +308,7 @@ const SignUpForm = () => {
 
             <View className=" flex justify-center w-full items-center pt-4 flex-row gap-1">
                 <Text className=" text-xs">Already have an account?</Text>
-                <TouchableOpacity onPress={()=>null}>
+                <TouchableOpacity onPress={_navigateToLogin}>
                     <Text className=" text-xs font-bold text-sky-500">Login</Text>
                 </TouchableOpacity>
             </View>
