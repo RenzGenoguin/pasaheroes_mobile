@@ -53,7 +53,7 @@ const Account = () => {
             <Text className=" text-base font-bold text-cyan-700 pl-2 -mt-1 mb-3">{userData.pasahero.address}</Text>
 
             </View>
-            <TouchableOpacity onPress={_logout} className=" px-10 border-red-500 rounded-full mx-10 border border-solid py-1 flex flex-row items-center justify-center text-red-500">
+            <TouchableOpacity onPress={_logout} className=" px-10 border-red-500 rounded-full mb-10 mx-16 border border-solid py-1 flex flex-row items-center justify-center text-red-500">
                 <Text className=" text-red-500 text-base mr-2">Logout</Text>
                 <Ionicons name="log-out-outline" color="red" size={20}/>
             </TouchableOpacity>
