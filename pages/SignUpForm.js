@@ -27,7 +27,7 @@ const data = [
     {label:'Female', value:'Female'},
 ]
 const SignUpForm = ({navigation}) => {  
-    const { setUsername: setUsernameAuth } = useAuth()
+    const {  setActiveUsername } = useAuth()
     const [formFields, setFormFields] = useState(defaultData);
     const [formFieldError, setFormFieldError] = useState(defaultData);
     const [showPassword, setShowPassword] = useState(true)
@@ -124,7 +124,7 @@ const SignUpForm = ({navigation}) => {
            title: 'Welcome',
            textBody: 'You have successfully signed in!',
          })
-           setUsernameAuth(username)
+           setActiveUsername(username)
          });
          setIsLoading(false)
    }

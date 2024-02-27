@@ -1,8 +1,10 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { View, Text, TouchableOpacity } from 'react-native';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export default function MyTabBar({ state, descriptors, navigation }) {
   return (
-    <View style={{ flexDirection: 'row' }} className=" bg-black">
+    <LinearGradient colors={[ '#04d4f4','#086cf4']} className="flex flex-row justify-between items-center  w-full py-1 pb-2">
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
         const label =
@@ -32,10 +34,20 @@ export default function MyTabBar({ state, descriptors, navigation }) {
             target: route.key,
           });
         };
-
+        const getIconName =(name)=>{
+          switch(name){
+            case "History":
+              return "clipboard-list";
+            case "Scan":
+              return "data-matrix-scan";
+            case "Account":
+              return "account-cog";
+          }
+        }
         return (
           <TouchableOpacity
           key={index}
+          className={` flex items-center justify-center  rounded-xl p-1 mx-5  ${isFocused ? ' bg-blue-800' : ''}`}
             accessibilityRole="button"
             accessibilityState={isFocused ? { selected: true } : {}}
             accessibilityLabel={options.tabBarAccessibilityLabel}
@@ -44,13 +56,16 @@ export default function MyTabBar({ state, descriptors, navigation }) {
             onLongPress={onLongPress}
             style={{ flex: 1 }}
           >
-            <Text style={{ color: isFocused ? '#673ab7' : '#222' }}>
+          <MaterialCommunityIcons name={getIconName(label)} color={isFocused ? 'white' : '#ffffff50'} size={23} />
+            <Text style={{ color: isFocused ? 'white' : '#ffffff50' }} className=" text-xs">
               {label}
             </Text>
           </TouchableOpacity>
+          //clipboard-list
+          //account-cog
         );
       })}
-    </View>
+    </LinearGradient>
   );
 }
 

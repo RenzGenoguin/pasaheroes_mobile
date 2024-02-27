@@ -12,7 +12,8 @@ const Tab = createBottomTabNavigator();
 
 export default function MyTabs() {
   return (
-    <Tab.Navigator  tabBar={props => <MyTabBar {...props} />} screenOptions={{headerShown:false}}>
+    <Tab.Navigator  initialRouteName='Account' tabBar={props => <MyTabBar {...props} />} >
+    <Tab.Screen name="History" component={History} />
       <Tab.Screen name="Scan" component={Scan} />
       <Tab.Screen name="Account" component={Account} />
     </Tab.Navigator>

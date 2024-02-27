@@ -8,7 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ALERT_TYPE,  Toast } from 'react-native-alert-notification';
 
 export default function LoginPage ({navigation}) {
-    const { setUsername: setUsernameAuth } = useAuth()
+    const { setActiveUsername  } = useAuth()
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
     const [error, setError] = useState({username:null, password:null})
@@ -42,7 +42,7 @@ export default function LoginPage ({navigation}) {
 
     const _asyncStorageSetter = async(username) => {
          await AsyncStorage.setItem(
-            'username',
+            'activeUsername',
             username,
           ).then(()=>{
 
@@ -51,7 +51,7 @@ export default function LoginPage ({navigation}) {
             title: 'Login Success',
             textBody: 'Successfully Logged in!',
           })
-            setUsernameAuth(username)
+            setActiveUsername(username)
           });
           setIsLoading(false)
     }
@@ -62,20 +62,20 @@ export default function LoginPage ({navigation}) {
             fieldChecker()
         }else{
             setIsLoading(true)
-            const {isError, isLoggedIn, message, username} = await loginPasahero({username, password})
+            const pasahero = await loginPasahero({username, password})
             .then(data=>{
              return data
             })
-            if(!isLoggedIn || isError){
-             if(isError && isError==="username"){
-                 stateSetter(setError, {username:message})
-             }else if(isError==="password"){
-                 stateSetter(setError, {password:message})
+            if(!pasahero.isLoggedIn || pasahero.isError){
+             if(pasahero.isError && pasahero.isError==="username"){
+                 stateSetter(setError, {username:pasahero.message})
+             }else if(pasahero.isError==="password"){
+                 stateSetter(setError, {password:pasahero.message})
              }
              setIsLoading(false)
             }
-            if(isLoggedIn && username){
-                _asyncStorageSetter(username)
+            if(pasahero.isLoggedIn && pasahero.username){
+                _asyncStorageSetter(pasahero.username)
             }
         }
     }

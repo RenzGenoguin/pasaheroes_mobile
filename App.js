@@ -8,26 +8,50 @@ import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from './context/AuthContext';
 import {  AlertNotificationRoot } from 'react-native-alert-notification';
+import { getPasaheroData } from './server/api/pasahero';
 
 
 
 export default App = ()=> {
-  const [username, setUsername] = useState(null)
+  const [activeUsername, setActiveUsername] = useState(null)
+  const [userData, setUserData] = useState(null)
 
   const _isLoggedIn = async() => {
-  const data =  await AsyncStorage.getItem('username')
+  const data =  await AsyncStorage.getItem('activeUsername')
   return data
   }
 
-  useEffect(()=>{
-    _isLoggedIn().then(data=>setUsername(data))
-  },[])
+  const _getPasaheroData = async(username) => {
+    if(username){
+      const pasahero = await getPasaheroData({username})
+      setUserData(pasahero)
+    }
+  }
 
+  useEffect(()=>{
+    _isLoggedIn()
+    .then(async(username)=>{
+    console.log(username, "usernameee")
+      setActiveUsername(username)
+      _getPasaheroData(username)
+    })
+  },[activeUsername])
+
+  useEffect(()=>{
+    console.log(userData, "userData")
+  },[userData])
+
+const value = {
+  userData, 
+  setUserData, 
+  activeUsername, 
+  setActiveUsername
+}
   return (
     <AlertNotificationRoot>
-      <AuthContext.Provider value={{ username, setUsername }}>
+      <AuthContext.Provider value={{...value}}>
         <NavigationContainer>
-          {username? 
+          {activeUsername? 
           <PrivatePages/>:
           <PublicPages/>}
           <StatusBar style='auto' />
