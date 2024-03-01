@@ -35,7 +35,7 @@ const Account = () => {
                 <Text>@{userData.pasahero.username}</Text>
             </View>
         </View>
-        <View className="bg-white px-4 py-4 flex flex-1 justify-between h-full flex-col mb-0.5">
+        <View className="bg-white px-6 py-4 flex flex-1 justify-between h-full flex-col mb-0.5">
             <View className=" flex flex-col w-full" >
             <Text className=" text-xl font-black text-gray-800 mb-2">Personal Information</Text>
 
@@ -60,7 +60,11 @@ const Account = () => {
         </View>
     </View> 
     ):
-    <View></View>;
+    <View>
+    <TouchableOpacity onPress={_logout} className=" px-10 border-red-500 rounded-full mb-10 mx-16 border border-solid py-1 flex flex-row items-center justify-center text-red-500">
+        <Text className=" text-red-500 text-base mr-2">Logout</Text>
+        <Ionicons name="log-out-outline" color="red" size={20}/>
+    </TouchableOpacity></View>;
 }
  
 export default Account;

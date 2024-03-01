@@ -7,6 +7,8 @@ import { signupPasahero } from "../server/api/signup";
 import useAuth from "../context/AuthContext";
 import { ALERT_TYPE,  Dialog, Toast } from 'react-native-alert-notification';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import ImagePicker from "expo-image-picker"
+import ImageUpload from "../navigations/components/ImageUpload";
 
 const defaultData = {
     username :"",
@@ -169,11 +171,12 @@ const SignUpForm = ({navigation}) => {
 
     return ( 
     <LinearGradient colors={[ '#04d4f4','#086cf4']} className=" h-full flex justify-center items-center w-full p-2">
-        <ScrollView className=" bg-white rounded-2xl min-w-fit p-3 py-3 pb-5 w-full flex-none">
+        <ScrollView className=" bg-white rounded-2xl min-w-fit mt-5 p-3 py-3 pb-5 w-full flex-none mb-5">
             <Text className=" text-2xl -mb-1 font-black text-sky-700 text-center">PASAHEROES</Text>
             <Text className=" text-sm uppercase text-sky-700 px-2 text-center font-semibold">SIGN UP</Text>
             <Text className=" text-sm text-sky-700 px-1 mt-1 font-bold mb-1">Personal Details</Text>
 
+            <ImageUpload error={false}/>
             <View className=" flex flex-row gap-1 mb-3">
                 <View className=" flex flex-col flex-1">
                     <Text className=" flex w-full px-1 text-sky-700 text-xs mb-1">First name</Text>
@@ -304,9 +307,7 @@ const SignUpForm = ({navigation}) => {
                     <Text className={" text-white"}>Submit</Text>
                 </TouchableOpacity>
             </View>
-
-
-            <View className=" flex justify-center w-full items-center pt-4 flex-row gap-1">
+            <View className=" flex justify-center w-full items-center pt-4 flex-row gap-1 mb-10">
                 <Text className=" text-xs">Already have an account?</Text>
                 <TouchableOpacity onPress={_navigateToLogin}>
                     <Text className=" text-xs font-bold text-sky-500">Login</Text>

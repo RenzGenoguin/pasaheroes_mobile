@@ -1,10 +1,10 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export default function MyTabBar({ state, descriptors, navigation }) {
   return (
-    <LinearGradient colors={[ '#04d4f4','#086cf4']} className="flex flex-row justify-between items-center  w-full py-1 pb-2">
+    <View className="flex flex-row justify-between items-center  w-full py-1 pb-2 bg-white" style={[styles.card, styles.shadowProp]}>
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
         const label =
@@ -47,7 +47,7 @@ export default function MyTabBar({ state, descriptors, navigation }) {
         return (
           <TouchableOpacity
           key={index}
-          className={` flex items-center justify-center  rounded-xl p-1 mx-5  ${isFocused ? ' bg-blue-800' : ''}`}
+          className={` flex items-center justify-center  rounded-xl p-1 mx-5  ${isFocused ? ' bg-cyan-600' : ''}`}
             accessibilityRole="button"
             accessibilityState={isFocused ? { selected: true } : {}}
             accessibilityLabel={options.tabBarAccessibilityLabel}
@@ -56,8 +56,8 @@ export default function MyTabBar({ state, descriptors, navigation }) {
             onLongPress={onLongPress}
             style={{ flex: 1 }}
           >
-          <MaterialCommunityIcons name={getIconName(label)} color={isFocused ? 'white' : '#ffffff50'} size={23} />
-            <Text style={{ color: isFocused ? 'white' : '#ffffff50' }} className=" text-xs">
+          <MaterialCommunityIcons name={getIconName(label)} color={isFocused ? 'white' : '#a7d6db'} size={25} />
+            <Text className={` text-xs font-bold ${isFocused? " text-white":" text-[#a7d6db]"}`}>
               {label}
             </Text>
           </TouchableOpacity>
@@ -65,7 +65,21 @@ export default function MyTabBar({ state, descriptors, navigation }) {
           //account-cog
         );
       })}
-    </LinearGradient>
+    </View>
   );
 }
 
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: 'white',
+    paddingVertical: 20,
+    paddingHorizontal: 0,
+    width: '100%',
+  },
+  shadowProp: {
+    shadowColor: '#171717',
+    shadowOffset: {width: -2, height: 4},
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+});

@@ -66,6 +66,7 @@ export default function LoginPage ({navigation}) {
             .then(data=>{
              return data
             })
+            console.log(pasahero)
             if(!pasahero.isLoggedIn || pasahero.isError){
              if(pasahero.isError && pasahero.isError==="username"){
                  stateSetter(setError, {username:pasahero.message})
