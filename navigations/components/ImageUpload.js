@@ -1,14 +1,9 @@
-import { Image, TouchableOpacity, View } from "react-native";
+import {  Image, TouchableOpacity, View } from "react-native";
 import { Text } from "react-native-paper";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import * as ImagePicker from 'expo-image-picker'
-import * as FileSystem from 'expo-file-system'
-import { firebase } from "../../server/firebase/config";
-import { useState } from "react";
 
-const ImageUpload = ({error}) => {
-    const [image ,setImage] = useState(null)
-    const [uploading ,setUploading] = useState(false)
+const ImageUpload = ({error,  image ,setImage}) => {
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({

@@ -1,6 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
-import {  ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {  ScrollView, Text, TextInput, TouchableOpacity, View, Alert } from "react-native";
 import { Dropdown } from 'react-native-element-dropdown';
 import Icon from 'react-native-vector-icons/Feather';
 import { signupPasahero } from "../server/api/signup";
@@ -9,6 +9,9 @@ import { ALERT_TYPE,  Dialog, Toast } from 'react-native-alert-notification';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ImagePicker from "expo-image-picker"
 import ImageUpload from "../navigations/components/ImageUpload";
+import * as FileSystem from 'expo-file-system'
+import { firebase } from "../server/firebase/config";
+import {getDownloadURL} from "firebase/storage"
 
 const defaultData = {
     username :"",
@@ -31,6 +34,7 @@ const data = [
 const SignUpForm = ({navigation}) => {  
     const {  setActiveUsername } = useAuth()
     const [formFields, setFormFields] = useState(defaultData);
+    const [image ,setImage] = useState(null)
     const [formFieldError, setFormFieldError] = useState(defaultData);
     const [showPassword, setShowPassword] = useState(true)
     const [loading, setIsLoading] = useState(false)
@@ -43,6 +47,27 @@ const SignUpForm = ({navigation}) => {
                 [field]:data
             }
         })
+        setFormFieldError(defaultData)
+    }
+
+    //image error setter if no image found
+    const imageErrorSetter = () => {
+        setFormFieldError(prev=>{
+            return {
+                ...prev,
+                ["profileUrl"]:"Profile is required"
+            }
+        })
+        Toast.show({
+            type: ALERT_TYPE.DANGER,
+            textBody: "Profile is required",
+          })
+            return true
+    }
+
+    //handle changing image 
+    const _handleImageChange = (image) => {
+        setImage(image)
         setFormFieldError(defaultData)
     }
 
@@ -80,6 +105,10 @@ const SignUpForm = ({navigation}) => {
     
     //error checker function
     const _checkError = () => {
+        if(!image){
+            imageErrorSetter();
+            return true
+        }
         if(_fieldErrorChecker("firstName", "First name is required")){
             return true
         }else if(_fieldErrorChecker("lastName", "Last name is required")){
@@ -123,7 +152,7 @@ const SignUpForm = ({navigation}) => {
 
         Dialog.show({
            type: ALERT_TYPE.SUCCESS,
-           title: 'Welcome',
+           title: 'Success',
            textBody: 'You have successfully signed in!',
          })
            setActiveUsername(username)
@@ -131,21 +160,50 @@ const SignUpForm = ({navigation}) => {
          setIsLoading(false)
    }
 
+
+   const uploadImage = async () => {
+    try{
+        const {uri} = await FileSystem.getInfoAsync(image);
+        const blob = await new Promise((resolve, reject)=> {
+            const xhr = new XMLHttpRequest();
+            xhr.onload = () => {
+                resolve(xhr.response)
+            }
+            xhr.onerror = () => {
+                reject(new TypeError("Network request failed"))
+            }
+            xhr.responseType="blob";
+            xhr.open('GET', uri, true);
+            xhr.send(null)
+        })
+        const filename = image.substring(image.lastIndexOf('/')+1);
+        const ref = firebase.storage().ref("pasaheroes/").child(filename);
+
+       return await ref.put(blob).then(async(data)=> {
+            const profileUrl = await data.ref.getDownloadURL()
+            return profileUrl
+        })
+    }catch(e){
+        console.error(e)
+    }
+}
     //handle submit signup
     const _handleSubmitSignup = async () => {
         setIsLoading(true)
         if(_checkError()){
             console.log("error")
         }else{
+            uploadImage().then(async(profileUrl)=>{
             const {
                 message,
                 isError,
                 isLoggedIn,
                 data,
                 errorField,
-              } = await signupPasahero({...formFields}).finally(()=>{
+              } = await signupPasahero({...formFields, profileUrl}).finally(()=>{
                 setIsLoading(false)
               })
+              
             if(isError && !data){
                 if(errorField === "username"){
                     setFormFieldError(prev=>{
@@ -164,8 +222,10 @@ const SignUpForm = ({navigation}) => {
 
                 }
             }else if(data){
+                setIsLoading(false)
                 _asyncStorageSetter(data.username)
             }
+            })
         }
     }
 
@@ -176,7 +236,7 @@ const SignUpForm = ({navigation}) => {
             <Text className=" text-sm uppercase text-sky-700 px-2 text-center font-semibold">SIGN UP</Text>
             <Text className=" text-sm text-sky-700 px-1 mt-1 font-bold mb-1">Personal Details</Text>
 
-            <ImageUpload error={false}/>
+            <ImageUpload error={formFieldError.profileUrl.length} image={image} setImage={_handleImageChange}/>
             <View className=" flex flex-row gap-1 mb-3">
                 <View className=" flex flex-col flex-1">
                     <Text className=" flex w-full px-1 text-sky-700 text-xs mb-1">First name</Text>
@@ -304,7 +364,7 @@ const SignUpForm = ({navigation}) => {
                 <View className={" w-1"}></View>
 
                 <TouchableOpacity onPress={ _handleSubmitSignup} className={" flex-1 bg-blue-600 flex items-center justify-center py-2 rounded-md"}>
-                    <Text className={" text-white"}>Submit</Text>
+                    <Text className={" text-white"}>{loading?"Loading...":"Submit"}</Text>
                 </TouchableOpacity>
             </View>
             <View className=" flex justify-center w-full items-center pt-4 flex-row gap-1 mb-10">
