@@ -4,7 +4,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 export default function MyTabBar({ state, descriptors, navigation }) {
   return (
-    <View className="flex flex-row justify-between items-center  w-full py-1 pb-2 bg-white" style={[styles.card, styles.shadowProp]}>
+    <View className="flex flex-row justify-between items-center  w-full py-1 pb-2 bg-gray-100 border-t border-gray-100" style={[styles.card, styles.shadowProp]}>
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
         const label =
@@ -71,7 +71,7 @@ export default function MyTabBar({ state, descriptors, navigation }) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: 'white',
+    // backgroundColor: 'white',
     paddingVertical: 20,
     paddingHorizontal: 0,
     width: '100%',

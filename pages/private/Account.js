@@ -46,7 +46,7 @@ const Account = () => {
             <View className="w-full rounded-3xl overflow-hidden bg-gray-100 flex flex-col">
                 <View className="flex flex-row justify-between py-4 px-4">
                     <View className="flex flex-row items-center">
-                        <MaterialCommunityIcons name="gender-male-female" color="orange" size={23}/>
+                        <MaterialCommunityIcons name="gender-male-female" color="#2ba7b5" size={23}/>
                         <Text className=" text-xs font-semibold text-gray-500 ml-2">Gender</Text>
                     </View>
                     <View className="flex flex-row items-center">
@@ -56,7 +56,7 @@ const Account = () => {
                 <View className=" h-0.5 bg-white w-full"/>
                 <View className="flex flex-row justify-between py-4 px-4">
                     <View className="flex flex-row items-center">
-                        <MaterialCommunityIcons name="phone" color="orange" size={23}/>
+                        <MaterialCommunityIcons name="phone" color="#2ba7b5" size={23}/>
                         <Text className=" text-xs font-semibold text-gray-500 ml-2">Contact</Text>
                     </View>
                     <View className="flex flex-row items-center">
@@ -66,7 +66,7 @@ const Account = () => {
                 <View className=" h-0.5 bg-white w-full"/>
                 <View className="flex flex-row justify-between py-4 px-4">
                     <View className="flex flex-row items-center">
-                        <MaterialCommunityIcons name="phone" color="orange" size={23}/>
+                        <MaterialCommunityIcons name="phone" color="#2ba7b5" size={23}/>
                         <Text className=" text-xs font-semibold text-gray-500 ml-2">Emergency Contact</Text>
                     </View>
                     <View className="flex flex-row items-center">
@@ -76,7 +76,7 @@ const Account = () => {
                 <View className=" h-0.5 bg-white w-full"/>
                 <View className="flex flex-row justify-between py-4 px-4">
                     <View className="flex flex-row items-center">
-                        <Entypo name="location" color="orange" size={23}/>
+                        <Entypo name="location" color="#2ba7b5" size={23}/>
                         <Text className=" text-xs font-semibold text-gray-500 ml-2">Address</Text>
                     </View>
                     <View className="flex flex-row items-center">
