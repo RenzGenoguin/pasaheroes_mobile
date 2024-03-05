@@ -9,12 +9,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from './context/AuthContext';
 import {  AlertNotificationRoot } from 'react-native-alert-notification';
 import { getPasaheroData } from './server/api/pasahero';
+import { getDriverData } from './server/api/driver';
+import { AppContext } from './context/AppContext';
 
 
 
 export default App = ()=> {
   const [activeUsername, setActiveUsername] = useState(null)
   const [userData, setUserData] = useState(null)
+  const [selectedDriverId, setSelectedDriverId] = useState(null)
+  const [driver, setDriver] = useState(null)
+  const [driverLoading, setDriverLoading] = useState(false)
 
   const _isLoggedIn = async() => {
   const data =  await AsyncStorage.getItem('activeUsername')
@@ -27,6 +32,22 @@ export default App = ()=> {
       setUserData(pasahero)
     }
   }
+
+  const _getDriverData = async(id) => {
+      setDriverLoading(true)
+      const driver = await getDriverData({id}).then((data)=>{
+        setDriverLoading(false)
+        return data
+      })
+      console.log(driver, "appDriver")
+      setDriver(driver)
+  }
+
+  useEffect(()=> {
+    if(selectedDriverId){
+      _getDriverData(selectedDriverId)
+    }
+  },[selectedDriverId])
 
   useEffect(()=>{
     _isLoggedIn()
@@ -45,17 +66,25 @@ const value = {
   userData, 
   setUserData, 
   activeUsername, 
-  setActiveUsername
+  setActiveUsername,
+}
+const appValue = {
+  selectedDriverId, 
+  setSelectedDriverId,
+  driver, 
+  setDriver
 }
   return (
     <AlertNotificationRoot>
       <AuthContext.Provider value={{...value}}>
-        <NavigationContainer>
-          {activeUsername? 
-          <PrivatePages/>:
-          <PublicPages/>}
-          <StatusBar style='auto' />
-        </NavigationContainer>
+        <AppContext.Provider value={{...appValue}}>
+          <NavigationContainer>
+              {activeUsername? 
+              <PrivatePages/>:
+              <PublicPages/>}
+              <StatusBar style='auto' />
+          </NavigationContainer>
+        </AppContext.Provider>
       </AuthContext.Provider>
     </AlertNotificationRoot>
   );
