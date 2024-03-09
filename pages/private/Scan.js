@@ -2,6 +2,9 @@ import React, { useState, useEffect, useContext } from "react";
 import { Text, View, StyleSheet, Button, TouchableOpacity } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import { AppContext } from "../../context/AppContext";
+import { Modal } from "react-native-paper";
+import ScannedDriver from "./components/ScannedDriver";
+import { defaultDriverData } from "../../App";
 
 export default function App() {
   const {
@@ -30,6 +33,11 @@ export default function App() {
     setSelectedDriverId(data);
   };
 
+  const handleRescan = () =>{
+    setSelectedDriverId(null)
+    setDriver(defaultDriverData)
+  }
+
   if (hasPermission === null) {
     return <View className=" w-full h-full items-center justify-center flex"><Text>Requesting for camera permission</Text></View>;
   }
@@ -38,15 +46,9 @@ export default function App() {
   }
 
   if(selectedDriverId){
-    return (<View className=" w-full h-full items-center justify-center flex">
-        <Text>{selectedDriverId}</Text>
-        <View className=" flex flex-row items-center justify-center px-5 mt-5">
-        <TouchableOpacity onPress={() => setSelectedDriverId(null)} className=" w-1/2 flex items-center justify-center rounded px-5 py-2 bg-cyan-600 text-white">
-            <Text className=" text-white text-base">Rescan</Text>
-        </TouchableOpacity>
-        </View>
-    </View>)
+    return (<ScannedDriver handleRescan={handleRescan} driver={driver}/>)
   }
+
   return (
     <View style={styles.container}>
       <BarCodeScanner

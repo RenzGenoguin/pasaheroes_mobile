@@ -12,13 +12,13 @@ import { getPasaheroData } from './server/api/pasahero';
 import { getDriverData } from './server/api/driver';
 import { AppContext } from './context/AppContext';
 
-
+export const defaultDriverData = {data:null, isLoading:false, error:false}
 
 export default App = ()=> {
   const [activeUsername, setActiveUsername] = useState(null)
   const [userData, setUserData] = useState(null)
   const [selectedDriverId, setSelectedDriverId] = useState(null)
-  const [driver, setDriver] = useState(null)
+  const [driver, setDriver] = useState({data:null, isLoading:false, error:false})
   const [driverLoading, setDriverLoading] = useState(false)
 
   const _isLoggedIn = async() => {
@@ -34,13 +34,21 @@ export default App = ()=> {
   }
 
   const _getDriverData = async(id) => {
-      setDriverLoading(true)
-      const driver = await getDriverData({id}).then((data)=>{
-        setDriverLoading(false)
-        return data
+    setDriver(prev=>{
+      return {
+        ...prev,
+        isLoading:true
+      }
+    })
+      await getDriverData({id}).then((driver)=>{
+        if(driver){
+        setDriver({
+          isLoading:false,
+          data:driver.data,
+          error:driver.error
+        })
+        }
       })
-      console.log(driver, "appDriver")
-      setDriver(driver)
   }
 
   useEffect(()=> {
