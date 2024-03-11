@@ -1,7 +1,7 @@
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { Rating, AirbnbRating } from 'react-native-ratings';
 
-const ScannedDriver = ({handleRescan ,driver}) => {
+const ScannedDriver = ({handleRescan ,driver, commentByDriver}) => {
     let Driver = () =><View><Text className="text-center px-10">Loading ...</Text></View>
     if(!!driver.data){
         Driver = () => (
@@ -52,6 +52,14 @@ const ScannedDriver = ({handleRescan ,driver}) => {
                     </View>
                 </View>
                 <ScrollView className="max-h-full w-full bg-gray-50 mt-1 rounded-lg">
+                    {
+                        commentByDriver?.length ? 
+                        commentByDriver.map((comment)=>{
+                            return <View>{comment.comment}</View>
+                        }): <View className=" w-full  flex item-center justify-center h-60 ">
+                            <Text className=" font-medium text-center text-gray-400">No Comment</Text>
+                            </View>
+                    }
                 </ScrollView>
                 <View className=" flex flex-row items-center justify-center px-5 pt-1 gap-2">
                 <TouchableOpacity onPress={handleRescan} className=" w-2/5 flex items-center bg-white justify-center rounded px-5 py-2 border border-white">
@@ -75,7 +83,7 @@ const ScannedDriver = ({handleRescan ,driver}) => {
     }
     return ( 
     <View className=" flex-1 p-1 pb-1 items-center justify-center flex  border rounded-lg border-gray-200 m-1 bg-cyan-600">
-    <Driver/>
+        <Driver/>
     </View>
      );
 }

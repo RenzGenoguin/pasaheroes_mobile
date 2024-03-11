@@ -5,6 +5,8 @@ type AppContextType = {
     setSelectedDriverId: Dispatch<SetStateAction<string | null>>;
     driver: any;
     setDriver: Dispatch<SetStateAction<any>>;
+    commentByDriver: any;
+    setCommentByDriver: Dispatch<SetStateAction<any>>;
 };
 
 export const AppContext = createContext<AppContextType | undefined>(

@@ -11,7 +11,9 @@ export default function App() {
     selectedDriverId, 
     setSelectedDriverId,
     driver, 
-    setDriver
+    setDriver,
+    commentByDriver,
+    setCommentByDriver
   } = useContext(AppContext)
   
   const [hasPermission, setHasPermission] = useState(null);
@@ -36,6 +38,7 @@ export default function App() {
   const handleRescan = () =>{
     setSelectedDriverId(null)
     setDriver(defaultDriverData)
+    setCommentByDriver(defaultDriverData)
   }
 
   if (hasPermission === null) {
@@ -46,7 +49,7 @@ export default function App() {
   }
 
   if(selectedDriverId){
-    return (<ScannedDriver handleRescan={handleRescan} driver={driver}/>)
+    return (<ScannedDriver handleRescan={handleRescan} driver={driver} commentByDriver={commentByDriver}/>)
   }
 
   return (

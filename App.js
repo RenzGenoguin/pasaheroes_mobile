@@ -11,6 +11,7 @@ import {  AlertNotificationRoot } from 'react-native-alert-notification';
 import { getPasaheroData } from './server/api/pasahero';
 import { getDriverData } from './server/api/driver';
 import { AppContext } from './context/AppContext';
+import { getCommentByDriver } from './server/api/comment';
 
 export const defaultDriverData = {data:null, isLoading:false, error:false}
 
@@ -18,7 +19,8 @@ export default App = ()=> {
   const [activeUsername, setActiveUsername] = useState(null)
   const [userData, setUserData] = useState(null)
   const [selectedDriverId, setSelectedDriverId] = useState(null)
-  const [driver, setDriver] = useState({data:null, isLoading:false, error:false})
+  const [driver, setDriver] = useState(defaultDriverData)
+  const [commentByDriver, setCommentByDriver] = useState(defaultDriverData)
   const [driverLoading, setDriverLoading] = useState(false)
 
   const _isLoggedIn = async() => {
@@ -51,9 +53,35 @@ export default App = ()=> {
       })
   }
 
+  const _getCommentByDriver = async(driverId) => {
+    setCommentByDriver(prev=>{
+      return {
+        ...prev,
+        isLoading:true
+      }
+    })
+    await getCommentByDriver({driverId}).then((comments)=>{
+      if(comments){
+        setCommentByDriver({
+          isLoading:false,
+          data:comments.data,
+          error:comments.error
+        })
+      }
+    }).finally(()=>{
+      setCommentByDriver(prev=>{
+        return {
+          ...prev,
+          isLoading:false
+        }
+      })
+    })
+  }
+
   useEffect(()=> {
     if(selectedDriverId){
-      _getDriverData(selectedDriverId)
+      _getDriverData(selectedDriverId);
+      _getCommentByDriver(selectedDriverId)
     }
   },[selectedDriverId])
 
@@ -80,7 +108,9 @@ const appValue = {
   selectedDriverId, 
   setSelectedDriverId,
   driver, 
-  setDriver
+  setDriver,
+  commentByDriver,
+  setCommentByDriver
 }
   return (
     <AlertNotificationRoot>
