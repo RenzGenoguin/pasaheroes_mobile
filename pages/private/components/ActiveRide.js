@@ -1,33 +1,31 @@
 import { useState } from "react";
 import { FlatList, Image, Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { Rating, AirbnbRating } from 'react-native-ratings';
-import { createStartRide } from "../../../server/api/ride";
+import { createStartRide, endRide } from "../../../server/api/ride";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const ScannedDriver = ({handleRescan ,driver, commentByDriver, setActiveRide}) => {
-    const [confirmModal, setConfirmModal] = useState(false);
-    const [createRideLoading, setCreateRideLoading] = useState(false)
-    const _createStartRide = async ({driverId}) => {
-        setCreateRideLoading(true)
+const ActiveRide = ({ride, commentByDriver, setActiveRide}) => {
+    const [confirmModal, setConfirmModal] = useState(false)
+    const [endRideLoading, setEndRideLoading] = useState(false)
+    const driver= {data:ride.Driver}
+
+    const _endRide = async () => {
+        setEndRideLoading(true)
         const activeId =  await AsyncStorage.getItem('activeId');
         const pasaheroId = parseInt(activeId);
-        await createStartRide({pasaheroId, driverId}).then((ride)=>{
+        await endRide({rideId:ride.id}).then((ride)=>{
             setConfirmModal(false)
-            setCreateRideLoading(false)
-            if(ride){
+            setEndRideLoading(false)
                 setActiveRide({
                   isLoading:false,
-                  data:ride.data,
+                  data:null,
                   error:ride.error
                 })
-                handleRescan()
-              }
         })
     }
-    let Driver = () =><View><Text className="text-center px-10 text-white">Loading ...</Text></View>
-    if(!!driver.data){
-        Driver = () => (
-            <View className=" h-full w-full ">
+
+        return  (
+            <View className=" h-full w-full bg-cyan-700">
             <Modal
             animationType="slide"
             transparent={true}
@@ -37,16 +35,16 @@ const ScannedDriver = ({handleRescan ,driver, commentByDriver, setActiveRide}) =
             }}>
             <View className=" w-full h-full flex items-center justify-center p-4" style={{ backgroundColor:'rgba(0,0,0,0.5)'}}>
                 <View className=" bg-white rounded-md p-4">
-                    <Text className="  pb-1 text-lg font-extrabold px-3">Confirm Ride</Text>
-                    <Text className="  pb-3 text-sm px-3">You're about to ride with this driver. Confirm to start ride.</Text>
+                    <Text className="  pb-1 text-lg font-extrabold px-3">End Ride</Text>
+                    <Text className="  pb-3 text-sm px-3">You're about to end this ride. Confirm to end ride.</Text>
                         <View className=" flex flex-row items-center justify-center pt-1 gap-2">
-                        <TouchableOpacity disabled={createRideLoading} onPress={() => {
+                        <TouchableOpacity disabled={endRideLoading} onPress={() => {
                 setConfirmModal(!confirmModal);
             }} className=" w-2/5 flex items-center bg-white justify-center rounded px-5 py-2 border border-gray-200">
                             <Text className=" text-gray-500 text-sm">Cancel</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity disabled={createRideLoading} onPress={()=>_createStartRide({driverId:driver.data.id})} className=" border-green-300 w-2/5 flex items-center justify-center rounded px-5 py-2 border bg-green-500">
-                            <Text className=" text-white text-sm">{createRideLoading?"Loading ...":"Ride"}</Text>
+                        <TouchableOpacity disabled={endRideLoading} onPress={_endRide} className=" border-orange-300 w-2/5 flex items-center justify-center rounded px-5 py-2 border bg-orange-500">
+                            <Text className=" text-white text-sm">{endRideLoading?"Loading ...":"Confirm"}</Text>
                         </TouchableOpacity>
                         </View>
                 </View>
@@ -97,7 +95,7 @@ const ScannedDriver = ({handleRescan ,driver, commentByDriver, setActiveRide}) =
                         </View>
                     </View>
                 </View>
-                <Text className=" p-1 pb-0 text-sm font-bold text-white">Comments</Text>
+                <Text className=" px-1 pb-0 text-sm font-bold text-white">Comments</Text>
                     {
                         commentByDriver?.data?.length ? 
                         <FlatList className="max-h-full w-full bg-gray-200 mt-1 p-1 rounded-lg"
@@ -125,31 +123,17 @@ const ScannedDriver = ({handleRescan ,driver, commentByDriver, setActiveRide}) =
                             <Text className=" font-medium text-center text-gray-400">No Comment</Text>
                         </View>
                     }
-                <View className=" flex flex-row items-center justify-center px-5 pt-1 gap-2">
-                <TouchableOpacity onPress={handleRescan} className=" w-2/5 flex items-center bg-white justify-center rounded px-5 py-2 border border-white">
-                    <Text className=" text-gray-500 text-sm">Rescan</Text>
+                <View className=" flex flex-row items-center justify-center px-5 pt-1 gap-2 mb-1">
+                <TouchableOpacity onPress={()=>null} className=" border-orange-500 min-w-2/5 flex items-center justify-center rounded px-5 py-2 border bg-gray-200">
+                    <Text className=" text-orange-500 font-bold text-sm">Rate & Comment</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={()=>setConfirmModal(true)} className=" border-green-300 w-2/5 flex items-center justify-center rounded px-5 py-2 border bg-green-500">
-                    <Text className=" text-white text-sm">Ride</Text>
+                <TouchableOpacity onPress={()=>setConfirmModal(true)} className=" border-orange-300 w-2/5 flex items-center justify-center rounded px-5 py-2 border bg-orange-500">
+                    <Text className=" text-white text-sm">End Ride</Text>
                 </TouchableOpacity>
                 </View>
             </View>
         )
-    }else if(!driver.data && !driver.isLoading){
-        Driver = () => <View className=" w-full flex flex-col items-center ">
-            <Text className="text-center px-10 text-white font-semibold">No Driver Found. Please Scan a legit Pasaheroes App Driver's QR Code</Text>
-            <View className=" flex flex-row items-center justify-center px-5 mt-2">
-                <TouchableOpacity onPress={handleRescan} className=" w-1/3 flex items-center justify-center rounded px-5 py-1 border border-white">
-                    <Text className=" text-white text-sm">Rescan</Text>
-                </TouchableOpacity>
-                </View>
-            </View>
-    }
-    return ( 
-    <View className=" flex-1 p-1 pb-1 items-center justify-center flex  border rounded-lg border-gray-200 m-1 bg-cyan-600">
-        <Driver/>
-    </View>
-     );
+    
 }
  
-export default ScannedDriver;
+export default ActiveRide;

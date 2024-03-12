@@ -1,7 +1,7 @@
 
 
-import LoginPage from '../pages/LoginPage';
-import SignUpForm from '../pages/SignUpForm';
+import LoginPage from '../LoginPage';
+import SignUpForm from '../SignUpForm';
 
 import { createStackNavigator } from '@react-navigation/stack';
 const Stack = createStackNavigator();

@@ -1,8 +1,8 @@
 import 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
-import PublicPages from './navigations/PublicPages';
-import PrivatePages from './navigations/PrivatePages';
+import PublicPages from './pages/navigations/PublicPages';
+import PrivatePages from './pages/navigations/PrivatePages';
 import { Text, View} from 'react-native';
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -12,20 +12,52 @@ import { getPasaheroData } from './server/api/pasahero';
 import { getDriverData } from './server/api/driver';
 import { AppContext } from './context/AppContext';
 import { getCommentByDriver } from './server/api/comment';
+import { getActiveRide } from './server/api/ride';
 
 export const defaultDriverData = {data:null, isLoading:false, error:false}
 
 export default App = ()=> {
   const [activeUsername, setActiveUsername] = useState(null)
+  const [activeUserId, setActiveUserId] = useState(null)
   const [userData, setUserData] = useState(null)
   const [selectedDriverId, setSelectedDriverId] = useState(null)
   const [driver, setDriver] = useState(defaultDriverData)
   const [commentByDriver, setCommentByDriver] = useState(defaultDriverData)
-  const [driverLoading, setDriverLoading] = useState(false)
+  const [activeRide, setActiveRide] = useState(defaultDriverData)
 
   const _isLoggedIn = async() => {
   const data =  await AsyncStorage.getItem('activeUsername')
   return data
+  }
+
+  const _getUserId = async() => {
+    const activeId =  await AsyncStorage.getItem('activeId');
+    setActiveUserId(parseInt(activeId))
+  }
+
+  const _getActiveRide = async({pasaheroId}) => {
+    setActiveRide(prev=>{
+      return {
+        ...prev,
+        isLoading:true
+      }
+    })
+    await getActiveRide({pasaheroId}).then((ride)=>{
+      if(ride){
+        setActiveRide({
+          isLoading:false,
+          data:ride.data,
+          error:ride.error
+        })
+      }
+    }).finally(()=>{
+      setActiveRide(prev=>{
+        return {
+          ...prev,
+          isLoading:false
+        }
+      })
+    })
   }
 
   const _getPasaheroData = async(username) => {
@@ -88,15 +120,20 @@ export default App = ()=> {
   useEffect(()=>{
     _isLoggedIn()
     .then(async(username)=>{
-    console.log(username, "usernameee")
       setActiveUsername(username)
       _getPasaheroData(username)
     })
   },[activeUsername])
 
   useEffect(()=>{
-    console.log(userData, "userData")
+    _getUserId()
   },[userData])
+
+  useEffect(()=>{
+    if(activeUserId){
+      _getActiveRide({pasaheroId:activeUserId})
+    }
+  },[activeUserId])
 
 const value = {
   userData, 
@@ -110,7 +147,9 @@ const appValue = {
   driver, 
   setDriver,
   commentByDriver,
-  setCommentByDriver
+  setCommentByDriver,
+  activeRide, 
+  setActiveRide
 }
   return (
     <AlertNotificationRoot>

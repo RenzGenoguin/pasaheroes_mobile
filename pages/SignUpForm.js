@@ -8,7 +8,7 @@ import useAuth from "../context/AuthContext";
 import { ALERT_TYPE,  Dialog, Toast } from 'react-native-alert-notification';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ImagePicker from "expo-image-picker"
-import ImageUpload from "../navigations/components/ImageUpload";
+import ImageUpload from "./navigations/components/ImageUpload";
 import * as FileSystem from 'expo-file-system'
 import { firebase } from "../server/firebase/config";
 import {getDownloadURL} from "firebase/storage"
@@ -146,7 +146,11 @@ const SignUpForm = ({navigation}) => {
 
     const _asyncStorageSetter = async(username) => {
         await AsyncStorage.setItem(
-           'username',
+        'activeId',
+        id.toString(),
+      )
+        await AsyncStorage.setItem(
+           'activeUsername',
            username,
          ).then(()=>{
 
@@ -223,7 +227,7 @@ const SignUpForm = ({navigation}) => {
                 }
             }else if(data){
                 setIsLoading(false)
-                _asyncStorageSetter(data.username)
+                _asyncStorageSetter(data.username , data.id)
             }
             })
         }

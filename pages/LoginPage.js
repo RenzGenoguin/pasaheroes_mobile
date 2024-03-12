@@ -40,7 +40,11 @@ export default function LoginPage ({navigation}) {
         navigation.navigate("Signup")
     }
 
-    const _asyncStorageSetter = async(username) => {
+    const _asyncStorageSetter = async(username, id) => {
+        await AsyncStorage.setItem(
+        'activeId',
+        id.toString(),
+      )
          await AsyncStorage.setItem(
             'activeUsername',
             username,
@@ -76,7 +80,7 @@ export default function LoginPage ({navigation}) {
              setIsLoading(false)
             }
             if(pasahero.isLoggedIn && pasahero.username){
-                _asyncStorageSetter(pasahero.username)
+                _asyncStorageSetter(pasahero.username, pasahero.pasahero.id)
             }
         }
     }

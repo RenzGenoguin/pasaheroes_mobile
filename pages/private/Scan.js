@@ -5,6 +5,7 @@ import { AppContext } from "../../context/AppContext";
 import { Modal } from "react-native-paper";
 import ScannedDriver from "./components/ScannedDriver";
 import { defaultDriverData } from "../../App";
+import ActiveRide from "./components/ActiveRide";
 
 export default function App() {
   const {
@@ -13,14 +14,17 @@ export default function App() {
     driver, 
     setDriver,
     commentByDriver,
-    setCommentByDriver
+    setCommentByDriver,
+    activeRide, 
+    setActiveRide
   } = useContext(AppContext)
   
   const [hasPermission, setHasPermission] = useState(null);
 
   useEffect(()=>{
-    console.log(driver, "useEffectDriver")
-  },[driver])
+    console.log(activeRide,"activeRide")
+  },[activeRide])
+
   
   useEffect(() => {
     const getBarCodeScannerPermissions = async () => {
@@ -48,18 +52,25 @@ export default function App() {
     return <View className=" w-full h-full items-center justify-center flex"><Text>No Access To Camera</Text></View>;
   }
 
-  if(selectedDriverId){
-    return (<ScannedDriver handleRescan={handleRescan} driver={driver} commentByDriver={commentByDriver}/>)
+  if(activeRide?.data){
+    return <ActiveRide ride={activeRide.data} commentByDriver={commentByDriver}  setActiveRide={setActiveRide}/>
+  }else if(activeRide.isLoading){
+    return <View><Text className="text-center px-10 text-white">Loading ...</Text></View>
+  }else{
+    if(selectedDriverId){
+      return (<ScannedDriver handleRescan={handleRescan} driver={driver} commentByDriver={commentByDriver} setActiveRide={setActiveRide}/>)
+    } else {
+      return (
+        <View style={styles.container}>
+          <BarCodeScanner
+            onBarCodeScanned={selectedDriverId ? undefined : handleBarCodeScanned}
+            style={StyleSheet.absoluteFillObject}
+          />
+        </View>
+      );
+    }
   }
 
-  return (
-    <View style={styles.container}>
-      <BarCodeScanner
-        onBarCodeScanned={selectedDriverId ? undefined : handleBarCodeScanned}
-        style={StyleSheet.absoluteFillObject}
-      />
-    </View>
-  );
 }
 
 const styles = StyleSheet.create({
