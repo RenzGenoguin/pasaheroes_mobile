@@ -36,7 +36,7 @@ export default function MyTabBar({ state, descriptors, navigation }) {
         };
         const getIconName =(name)=>{
           switch(name){
-            case "History":
+            case "Rides":
               return "clipboard-list";
             case "Scan":
               return "data-matrix-scan";

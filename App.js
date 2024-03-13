@@ -12,7 +12,7 @@ import { getPasaheroData } from './server/api/pasahero';
 import { getDriverData } from './server/api/driver';
 import { AppContext } from './context/AppContext';
 import { getCommentByDriver } from './server/api/comment';
-import { getActiveRide } from './server/api/ride';
+import { getActiveRide, getRidesByPasahero } from './server/api/ride';
 
 export const defaultDriverData = {data:null, isLoading:false, error:false}
 
@@ -23,7 +23,8 @@ export default App = ()=> {
   const [selectedDriverId, setSelectedDriverId] = useState(null)
   const [driver, setDriver] = useState(defaultDriverData)
   const [commentByDriver, setCommentByDriver] = useState(defaultDriverData)
-  const [activeRide, setActiveRide] = useState(defaultDriverData)
+  const [activeRide, setActiveRide] = useState(defaultDriverData);
+  const [rideHistory, setRideHistory] = useState(defaultDriverData)
 
   const _isLoggedIn = async() => {
   const data =  await AsyncStorage.getItem('activeUsername')
@@ -52,6 +53,31 @@ export default App = ()=> {
       }
     }).finally(()=>{
       setActiveRide(prev=>{
+        return {
+          ...prev,
+          isLoading:false
+        }
+      })
+    })
+  }
+
+  const _getRidesByPasahero = async({pasaheroId}) => {
+    setRideHistory(prev=>{
+      return {
+        ...prev,
+        isLoading:true
+      }
+    })
+    await getRidesByPasahero({pasaheroId}).then((ride)=>{
+      if(ride){
+        setRideHistory({
+          isLoading:false,
+          data:ride.data,
+          error:ride.error
+        })
+      }
+    }).finally(()=>{
+      setRideHistory(prev=>{
         return {
           ...prev,
           isLoading:false
@@ -131,7 +157,8 @@ export default App = ()=> {
 
   useEffect(()=>{
     if(activeUserId){
-      _getActiveRide({pasaheroId:activeUserId})
+      _getActiveRide({pasaheroId:activeUserId});
+      _getRidesByPasahero({pasaheroId:activeUserId});
     }
   },[activeUserId])
 
@@ -140,6 +167,7 @@ const value = {
   setUserData, 
   activeUsername, 
   setActiveUsername,
+  activeUserId
 }
 const appValue = {
   selectedDriverId, 
@@ -149,7 +177,10 @@ const appValue = {
   commentByDriver,
   setCommentByDriver,
   activeRide, 
-  setActiveRide
+  setActiveRide,
+  rideHistory,
+  _getRidesByPasahero,
+  activeUserId
 }
   return (
     <AlertNotificationRoot>

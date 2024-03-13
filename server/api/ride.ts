@@ -7,8 +7,11 @@ interface CreateActiveRide {
     pasaheroId:number;
     driverId:string
 }
-interface EndRide {
+interface RideId {
     rideId:number;
+}
+interface PasaheroId {
+    pasaheroId:number;
 }
 
 export const getActiveRide =async(payload:ActiveRide) =>{
@@ -31,9 +34,19 @@ export const createStartRide =async(payload:CreateActiveRide) =>{
     })
 }
 
-export const endRide =async(payload:EndRide) =>{
+export const endRide =async(payload:RideId) =>{
     const {rideId} = payload
     return await api.post("ride/endRide", {rideId})
+    .then((res)=>{ 
+        return res?.data
+    }).catch((e)=>{
+        return e?.response?.data
+    })
+}
+
+export const getRidesByPasahero =async(payload:PasaheroId) =>{
+    const {pasaheroId} = payload
+    return await api.post("ride/getRidesByPasahero", {pasaheroId})
     .then((res)=>{ 
         return res?.data
     }).catch((e)=>{

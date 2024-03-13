@@ -80,14 +80,3 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 });
-// import { CameraView, useCameraPermissions } from 'expo-camera/next';
-// import { View } from 'react-native';
-
-// const Scan = () => {
-//     return ( <View>
-//         <CameraView  facing={"back"}>
-//         </CameraView>
-//     </View> );
-// }
- 
-// export default Scan;
