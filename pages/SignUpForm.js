@@ -144,7 +144,7 @@ const SignUpForm = ({navigation}) => {
         }
     }
 
-    const _asyncStorageSetter = async(username) => {
+    const _asyncStorageSetter = async(username, id) => {
         await AsyncStorage.setItem(
         'activeId',
         id.toString(),
