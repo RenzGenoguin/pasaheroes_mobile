@@ -1,19 +1,26 @@
-import { useState } from "react";
-import { FlatList, Image, Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useEffect, useState } from "react";
+import { FlatList, Image, Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Rating, AirbnbRating } from 'react-native-ratings';
 import { createStartRide, endRide } from "../../../server/api/ride";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { rateAndComment } from "../../../server/api/comment";
+import dayjs from "dayjs";
 
-const ActiveRide = ({ride, commentByDriver, setActiveRide}) => {
+const ActiveRide = ({_getActiveRide, activeUserId, ride, commentByDriver, setActiveRide}) => {
     const [confirmModal, setConfirmModal] = useState(false)
     const [endRideLoading, setEndRideLoading] = useState(false)
-    const driver= {data:ride.Driver}
+    const [rateAndCommentLoading, setRateAndCommentLoading] = useState(false)
+    const [rateAndCommentIsOpen, setRateAndCommentIsOpen] = useState(false)
+    const [rating, setRating] = useState(null)
+    const [comment, setComment] = useState(null)
+    const driver= {data:ride.data.Driver}
+    const rideData = ride.data
 
     const _endRide = async () => {
         setEndRideLoading(true)
         const activeId =  await AsyncStorage.getItem('activeId');
         const pasaheroId = parseInt(activeId);
-        await endRide({rideId:ride.id}).then((ride)=>{
+        await endRide({rideId:rideData.id}).then((ride)=>{
             setConfirmModal(false)
             setEndRideLoading(false)
                 setActiveRide({
@@ -24,8 +31,51 @@ const ActiveRide = ({ride, commentByDriver, setActiveRide}) => {
         })
     }
 
+    const _setRating = (rating) => {
+        setRating(rating)
+      }
+
+    const _setComment = (comment) => {
+        if(comment.length){
+
+        setComment(comment)
+        }else{
+            setComment(null)
+        }
+    }
+
+    const _setRateAndCommentIsOpen = () => {
+        setRateAndCommentIsOpen(!rateAndCommentIsOpen);
+    }
+    useEffect(()=>{
+        setRating(rideData?.Rating?.rating || null)
+        setComment(rideData?.Comment?.comment || null)
+    },[rideData?.Comment?.comment, rideData?.Comment?.rate])
+
+    const _submitRateAndComment = async () => {
+        setRateAndCommentLoading(true)
+        const payload = {
+            rideId:rideData.id, 
+            driverId:rideData.Driver.id, 
+            pasaheroId:activeUserId, 
+            rating, 
+            comment,
+            ratingId:rideData?.Rating?.id || null,
+            commentId:rideData?.Comment?.id|| null,
+        }
+        console.log(payload)
+        await rateAndComment(payload).then( async()=>{
+            await _getActiveRide({pasaheroId:activeUserId}).then(()=>{
+                _setRateAndCommentIsOpen()
+            })
+        }).finally(()=>{
+            setRateAndCommentLoading(false)
+        })
+    }
+
         return  (
             <View className=" h-full w-full bg-cyan-700">
+
             <Modal
             animationType="slide"
             transparent={true}
@@ -50,6 +100,49 @@ const ActiveRide = ({ride, commentByDriver, setActiveRide}) => {
                 </View>
             </View>
             </Modal>
+
+            <Modal
+            animationType="slide"
+            transparent={true}
+            visible={rateAndCommentIsOpen}
+            onRequestClose={() => {
+                setRateAndCommentIsOpen(!rateAndCommentIsOpen);
+            }}>
+            <View className=" w-full h-full flex items-center justify-center p-4" style={{ backgroundColor:'rgba(0,0,0,0.5)'}}>
+                <View className=" bg-white rounded-md p-4">
+                    <Rating
+                    showRating
+                    startingValue={rating}
+                    onFinishRating={_setRating}
+                    disabled={rateAndCommentLoading}
+                    style={{ paddingVertical: 10 }}
+                    />
+                    <Text className="  pb-2 text-sm">Comment :</Text>
+
+                    <TextInput
+                    placeholder="Input comment"
+                    textAlignVertical="top"
+                    editable={!rateAndCommentLoading}
+                    multiline
+                    sta
+                    numberOfLines={4}
+                    className=" border border-gray-300 rounded p-2"
+                    onChangeText={_setComment}
+                    value={comment}
+                    />
+                        <View className=" flex flex-row items-center justify-center pt-3 gap-2">
+                            <TouchableOpacity disabled={rateAndCommentLoading} onPress={_setRateAndCommentIsOpen} 
+                            className=" w-2/5 flex items-center bg-white justify-center rounded px-5 py-2 border border-gray-200">
+                                <Text className=" text-gray-500 text-sm">Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity disabled={!(comment || rating) || rateAndCommentLoading} onPress={_submitRateAndComment} className=" border-orange-300 w-2/5 flex items-center justify-center rounded px-5 py-2 border bg-orange-500">
+                                <Text className=" text-white text-sm">{(rateAndCommentLoading)?"Loading ...":"Submit"}</Text>
+                            </TouchableOpacity>
+                        </View>
+                </View>
+            </View>
+            </Modal>
+
                 <Text className=" p-1 pt-0 text-sm font-bold text-white">Driver's Details</Text>
                 <View className=" w-full flex flex-row items-center bg-white p-1 rounded-t-lg">
                     <Image
@@ -60,14 +153,14 @@ const ActiveRide = ({ride, commentByDriver, setActiveRide}) => {
                     />
                     <View className=" px-3 flex flex-col">
                         {
-                            driver.data.rating ? <View className=" flex items-start justify-start w-full text-start">
+                            rideData.avgRating ? <View className=" flex items-start justify-start w-full text-start">
                                 <Rating
                                 type="custom"
                             imageSize={15}
                             ratingCount={5}
                             style={{padding:0, margin:0}}
                             readonly
-                            startingValue={driver.data.rating}
+                            startingValue={rideData.avgRating}
                             className=" w-full flex items-start p-0 m-0"
                             /></View>:<Text className=" text-xs text-gray-400 -mb-1">No Rating</Text>
                         }
@@ -100,9 +193,10 @@ const ActiveRide = ({ride, commentByDriver, setActiveRide}) => {
                         commentByDriver?.data?.length ? 
                         <FlatList className="max-h-full w-full bg-gray-200 mt-1 p-1 rounded-lg"
                           data={commentByDriver.data}
-                          renderItem={({item}) => (
-                          <View className=" p-2 bg-white rounded">
-                            <Text className="font-extrabold">{item.Pasahero.fullName}</Text>
+                          renderItem={({item}) => {
+                            return(
+                          <View className=" p-2 bg-white rounded mb-1">
+                            <Text className="font-extrabold">{item.pasaheroId === activeUserId ?"You" : item.Pasahero.fullName}</Text>
                             {
                             item.Ride?.Rating ? <View className=" flex items-start justify-start w-full text-start">
                                 <Rating
@@ -116,7 +210,8 @@ const ActiveRide = ({ride, commentByDriver, setActiveRide}) => {
                             /></View>:<Text className=" text-xs text-gray-400">No Rating</Text>
                         }
                             <Text className=" text-gray-700">{item.comment}</Text>
-                        </View>)}
+                            <Text className=" text-gray-400 text-xs font-bold w-full text-right">{dayjs(item.Ride?.updatedAt).format("h:mm A - MMM D, YYYY ")}</Text>
+                        </View>)}}
                           keyExtractor={item => item.id}
                         />: 
                         <View className=" flex-1 max-h-full w-full flex justify-center items-center bg-gray-200 mt-1 p-1 rounded-lg">
@@ -124,7 +219,7 @@ const ActiveRide = ({ride, commentByDriver, setActiveRide}) => {
                         </View>
                     }
                 <View className=" flex flex-row items-center justify-center px-5 pt-1 gap-2 mb-1">
-                <TouchableOpacity onPress={()=>null} className=" border-orange-500 min-w-2/5 flex items-center justify-center rounded px-5 py-2 border bg-gray-200">
+                <TouchableOpacity onPress={()=>setRateAndCommentIsOpen(true)} className=" border-orange-500 min-w-2/5 flex items-center justify-center rounded px-5 py-2 border bg-gray-200">
                     <Text className=" text-orange-500 font-bold text-sm">Rate & Comment</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={()=>setConfirmModal(true)} className=" border-orange-300 w-2/5 flex items-center justify-center rounded px-5 py-2 border bg-orange-500">

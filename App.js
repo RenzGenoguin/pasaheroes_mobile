@@ -141,7 +141,7 @@ export default App = ()=> {
       _getDriverData(selectedDriverId);
       _getCommentByDriver(selectedDriverId)
     }
-  },[selectedDriverId])
+  },[activeRide, selectedDriverId])
 
   useEffect(()=>{
     _isLoggedIn()
@@ -162,6 +162,12 @@ export default App = ()=> {
     }
   },[activeUserId])
 
+  useEffect(()=>{
+    if(activeRide){
+      setSelectedDriverId(activeRide.data?.Driver?.id)
+    }
+  },[activeRide])
+
 const value = {
   userData, 
   setUserData, 
@@ -180,7 +186,8 @@ const appValue = {
   setActiveRide,
   rideHistory,
   _getRidesByPasahero,
-  activeUserId
+  activeUserId,
+  _getActiveRide
 }
   return (
     <AlertNotificationRoot>

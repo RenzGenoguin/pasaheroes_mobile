@@ -16,16 +16,13 @@ export default function App() {
     commentByDriver,
     setCommentByDriver,
     activeRide, 
-    setActiveRide
+    setActiveRide,
+    activeUserId,
+    _getActiveRide
   } = useContext(AppContext)
   
   const [hasPermission, setHasPermission] = useState(null);
 
-  useEffect(()=>{
-    console.log(activeRide,"activeRide")
-  },[activeRide])
-
-  
   useEffect(() => {
     const getBarCodeScannerPermissions = async () => {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
@@ -53,7 +50,7 @@ export default function App() {
   }
 
   if(activeRide?.data){
-    return <ActiveRide ride={activeRide.data} commentByDriver={commentByDriver}  setActiveRide={setActiveRide}/>
+    return <ActiveRide _getActiveRide={_getActiveRide} activeUserId={activeUserId} ride={activeRide} commentByDriver={commentByDriver}  setActiveRide={setActiveRide}/>
   }else if(activeRide.isLoading){
     return <View><Text className="text-center px-10 text-white">Loading ...</Text></View>
   }else{

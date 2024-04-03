@@ -52,7 +52,7 @@ const History = () => {
     </View>
 )
     return ( <View className=" w-full h-full  p-1 flex flex-col  bg-cyan-600">
-            <FlatList
+            { rideHistory?.data ? <FlatList
             data={rideHistory?.data || []}
             renderItem={renderItem}
             keyExtractor={(item) => item.id.toString()}
@@ -60,7 +60,7 @@ const History = () => {
             refreshControl={
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
-            />
+            />: <View className=" flex w-full items-center justify-center h-full"><Text className=" text-white">No Ride History</Text></View>}
         </View> );
 }
  
