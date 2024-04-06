@@ -3,11 +3,30 @@ import { FlatList, Image, Modal, ScrollView, Text, TouchableOpacity, View } from
 import { Rating, AirbnbRating } from 'react-native-ratings';
 import { createStartRide } from "../../../server/api/ride";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Location from 'expo-location';
 
 const ScannedDriver = ({handleRescan ,driver, commentByDriver, setActiveRide}) => {
     const [confirmModal, setConfirmModal] = useState(false);
-    const [createRideLoading, setCreateRideLoading] = useState(false)
+    const [createRideLoading, setCreateRideLoading] = useState(false);
+    const getLocation = async () => {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+            return null;
+        }else {
+            let location = await Location.getCurrentPositionAsync({});
+            console.log(location)
+            return location
+    
+        }
+      }
     const _createStartRide = async ({driverId}) => {
+        getLocation().then((data)=>{
+            if(data){
+                console.log(data)
+            }
+        });
+        return 
+
         setCreateRideLoading(true)
         const activeId =  await AsyncStorage.getItem('activeId');
         const pasaheroId = parseInt(activeId);
