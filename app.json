@@ -21,9 +21,9 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splashlogo.png",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#086cf4"
+      "backgroundColor": "#086cfa"
     },
     "assetBundlePatterns": [
       "**/*"

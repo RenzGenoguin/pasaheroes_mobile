@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { FlatList, Image, Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Rating, AirbnbRating } from 'react-native-ratings';
-import { createStartRide, endRide } from "../../../server/api/ride";
+import {  endRide } from "../../../server/api/ride";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { rateAndComment } from "../../../server/api/comment";
 import dayjs from "dayjs";
 
-const ActiveRide = ({_getActiveRide, activeUserId, ride, commentByDriver, setActiveRide}) => {
+const ActiveRide = ({getLocation, _getActiveRide, activeUserId, ride, commentByDriver, setActiveRide}) => {
     const [confirmModal, setConfirmModal] = useState(false)
     const [endRideLoading, setEndRideLoading] = useState(false)
     const [rateAndCommentLoading, setRateAndCommentLoading] = useState(false)
@@ -16,19 +16,43 @@ const ActiveRide = ({_getActiveRide, activeUserId, ride, commentByDriver, setAct
     const driver= {data:ride.data.Driver}
     const rideData = ride.data
 
-    const _endRide = async () => {
-        setEndRideLoading(true)
-        const activeId =  await AsyncStorage.getItem('activeId');
-        const pasaheroId = parseInt(activeId);
-        await endRide({rideId:rideData.id}).then((ride)=>{
-            setConfirmModal(false)
-            setEndRideLoading(false)
-                setActiveRide({
-                  isLoading:false,
-                  data:null,
-                  error:ride.error
+    const _endRide = async () => {        
+        getLocation().then(async(data)=>{
+        const {coords} = data
+        if(data){
+            if(!coords.latitude || !coords.longitude){
+                Dialog.show({
+                    type: ALERT_TYPE.INFO,
+                    textBody: <View className="text-center w-full">
+                        <Text className=" font-black text-center">Can't get location.</Text>
+                        <Text className=" font-black text-center">Please restart the app.</Text>
+                        <Text className=" text-center flex-nowrap">If you just enabled your location,</Text>
+                        <Text className=" text-center flex-nowrap">we need to restart the app.</Text>
+                        </View>,
                 })
-        })
+            }else{
+                setEndRideLoading(true)
+                const activeId =  await AsyncStorage.getItem('activeId');
+                const pasaheroId = parseInt(activeId);
+                await endRide({rideId:rideData.id, 
+                    endLat:coords.latitude,
+                    endLong:coords.longitude }).then((ride)=>{
+                    setConfirmModal(false)
+                    setEndRideLoading(false)
+                        setActiveRide({
+                          isLoading:false,
+                          data:null,
+                         error:ride.error
+                        })
+                })
+            }
+        }else {
+            Dialog.show({
+                type: ALERT_TYPE.WARNING,
+                textBody: <Text className=" font-black">Please on your location</Text>,
+            })
+        }
+    });
     }
 
     const _setRating = (rating) => {

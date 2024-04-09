@@ -1,47 +1,55 @@
 import { useState } from "react";
-import { FlatList, Image, Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Alert, FlatList, Image, Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { Rating, AirbnbRating } from 'react-native-ratings';
 import { createStartRide } from "../../../server/api/ride";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as Location from 'expo-location';
+import { ALERT_TYPE,  Dialog, Toast } from 'react-native-alert-notification';
 
-const ScannedDriver = ({handleRescan ,driver, commentByDriver, setActiveRide}) => {
+const ScannedDriver = ({getLocation, handleRescan ,driver, commentByDriver, setActiveRide}) => {
     const [confirmModal, setConfirmModal] = useState(false);
     const [createRideLoading, setCreateRideLoading] = useState(false);
-    const getLocation = async () => {
-        let { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
-            return null;
-        }else {
-            let location = await Location.getCurrentPositionAsync({});
-            console.log(location)
-            return location
-    
-        }
-      }
+
+
     const _createStartRide = async ({driverId}) => {
-        getLocation().then((data)=>{
+        getLocation().then(async(data)=>{
+            const {coords} = data
             if(data){
-                console.log(data)
+                if(!coords.latitude || !coords.longitude){
+                    Dialog.show({
+                        type: ALERT_TYPE.INFO,
+                        textBody: <View className="text-center w-full">
+                            <Text className=" font-black text-center">Can't get location.</Text>
+                            <Text className=" font-black text-center">Please restart the app.</Text>
+                            <Text className=" text-center flex-nowrap">If you just enabled your location,</Text>
+                            <Text className=" text-center flex-nowrap">we need to restart the app.</Text>
+                            </View>,
+                    })
+                }else{
+                    setCreateRideLoading(true)
+                    const activeId =  await AsyncStorage.getItem('activeId');
+                    const pasaheroId = parseInt(activeId);
+                    await createStartRide({pasaheroId, driverId, 
+                        startLat:coords.latitude,
+                        startLong:coords.longitude }).then((ride)=>{
+                        setConfirmModal(false)
+                        setCreateRideLoading(false)
+                        if(ride){
+                            setActiveRide({
+                              isLoading:false,
+                              data:ride.data,
+                              error:ride.error
+                            })
+                            handleRescan()
+                          }
+                    })
+                }
+            }else {
+                Dialog.show({
+                    type: ALERT_TYPE.WARNING,
+                    textBody: <Text className=" font-black">Please on your location</Text>,
+                })
             }
         });
-        return 
-
-        setCreateRideLoading(true)
-        const activeId =  await AsyncStorage.getItem('activeId');
-        const pasaheroId = parseInt(activeId);
-        await createStartRide({pasaheroId, driverId}).then((ride)=>{
-            setConfirmModal(false)
-            setCreateRideLoading(false)
-            if(ride){
-                setActiveRide({
-                  isLoading:false,
-                  data:ride.data,
-                  error:ride.error
-                })
-                handleRescan()
-              }
-        })
     }
     let Driver = () =><View><Text className="text-center px-10 text-white">Loading ...</Text></View>
     if(!!driver.data){
