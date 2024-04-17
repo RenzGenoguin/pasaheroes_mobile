@@ -16,6 +16,8 @@ type AuthContextType = {
   setActiveUsername: Dispatch<SetStateAction<{ [key: string]: any } | null>>;
   userData: { [key: string]: any } | null;
   setUserData: Dispatch<SetStateAction<{ [key: string]: any } | null>>;
+  _getPasaheroData:any;
+   _isLoggedIn:any
 };
 
 export const AuthContext = createContext<AuthContextType | undefined>(

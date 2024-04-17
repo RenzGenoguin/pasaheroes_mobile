@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "pasaheroes_mobile",
-    "slug": "pasaheroes_mobile",
+    "slug": "pasaheroesv2",
     "plugins": [
       [
         "expo-image-picker",
@@ -35,10 +35,22 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/logo.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ],
+      "package": "com.zynmurel.pasaheroes"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "3842e697-79cc-4a29-a9aa-eba4904389d5"
+      }
+    },
+    "owner": "zynmurel"
   }
 }

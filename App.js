@@ -168,12 +168,13 @@ export default App = ()=> {
     }
   },[activeRide])
 
-const value = {
+const value = {_isLoggedIn,
   userData, 
   setUserData, 
   activeUsername, 
   setActiveUsername,
-  activeUserId
+  activeUserId,
+  _getPasaheroData
 }
 const appValue = {
   selectedDriverId, 
