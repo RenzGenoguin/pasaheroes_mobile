@@ -19,7 +19,8 @@ export default function App() {
     activeRide, 
     setActiveRide,
     activeUserId,
-    _getActiveRide
+    _getActiveRide,
+    _getRidesByPasahero
   } = useContext(AppContext)
   
   const [hasPermission, setHasPermission] = useState(null);
@@ -70,19 +71,19 @@ const getLocation = async () => {
   }
 
   if (hasPermission === null) {
-    return <View className=" w-full h-full items-center justify-center flex"><Text>Requesting for camera permission</Text></View>;
+    return <View className="flex items-center justify-center w-full h-full "><Text>Requesting for camera permission</Text></View>;
   }
   if (hasPermission === false) {
-    return <View className=" w-full h-full items-center justify-center flex"><Text>No Access To Camera</Text></View>;
+    return <View className="flex items-center justify-center w-full h-full "><Text>No Access To Camera</Text></View>;
   }
 
   if(activeRide?.data){
     return <ActiveRide getLocation={getLocation} _getActiveRide={_getActiveRide} activeUserId={activeUserId} ride={activeRide} commentByDriver={commentByDriver}  setActiveRide={setActiveRide}/>
   }else if(activeRide.isLoading){
-    return <View><Text className="text-center px-10 text-white">Loading ...</Text></View>
+    return <View><Text className="px-10 text-center text-white">Loading ...</Text></View>
   }else{
     if(selectedDriverId){
-      return (<ScannedDriver getLocation={getLocation} handleRescan={handleRescan} driver={driver} commentByDriver={commentByDriver} setActiveRide={setActiveRide}/>)
+      return (<ScannedDriver _getRidesByPasahero={_getRidesByPasahero} getLocation={getLocation} handleRescan={handleRescan} driver={driver} commentByDriver={commentByDriver} setActiveRide={setActiveRide}/>)
     } else {
       return (
         <View style={styles.container}>
